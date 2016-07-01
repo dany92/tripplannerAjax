@@ -18,7 +18,6 @@
 var daysModule = (function () {
 
   // application state
-
   var days = [],
       currentDay;
 
@@ -47,13 +46,38 @@ var daysModule = (function () {
 
   function addDay () {
     if (this && this.blur) this.blur(); // removes focus box from buttons
-    var newDay = dayModule.create({ number: days.length + 1 }); // dayModule
-    days.push(newDay);
-    if (days.length === 1) {
-      currentDay = newDay;
-      switchTo(currentDay);
-    }
+     // dayModule
+    //days.push(newDay);
+    var numDays;
+    getNumDays()
+    .then(function(num){
+      numDays = num;
+    })
+    .then(function(){
+      console.log("days: "+numDays);
+      $.post('/api/days',{ number: numDays + 1 })
+      .then(function(newDay){
+        console.log("did it gt here", newDay.day);
+        dayModule.create({ number: newDay.day.number });
+      })
+      .catch(console.error.bind(console));
+
+      if ((numDays + 1) === 1) {
+        currentDay = newDay;
+        switchTo(currentDay);
+      }
+    });
   }
+
+  function getNumDays(){
+    return $.get('/api/days') //gets all the days
+    .then(function(days){
+      console.log("NUM days", days.days.length);
+      return days.days.length;
+    })
+    .catch(console.error.bind(console));
+  }
+
 
   function deleteCurrentDay () {
     // prevent deleting last day

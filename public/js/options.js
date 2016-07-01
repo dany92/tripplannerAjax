@@ -13,11 +13,23 @@
 $(function(){
 
   var $optionsPanel = $('#options-panel');
+  var hotels = getAjax('hotels').then(dbHotels => {
+    dbHotels.hotels.forEach(makeOption, $optionsPanel.find('#hotel-choices'));});
+  var restaurants = getAjax('restaurants').then(dbRest => {
+    dbRest.restaurants.forEach(makeOption, $optionsPanel.find('#restaurant-choices'));});
+  var activities = getAjax('activities').then(dbAct => {
+    dbAct.activities.forEach(makeOption, $optionsPanel.find('#activity-choices'));});
 
+  //var restaurants = getAjax('restaurants');
+  //var activities = getAjax('activities');
+  // Promise.all([hotels, restaurants, activities])
+  // .then((hotels, restaurants, activties) => {
+  //   hotels.forEach(makeOption, $optionsPanel.find('#hotel-choices'));
+  //   restaurants.forEach(makeOption, $optionsPanel.find('#restaurant-choices'));
+  //   activities.forEach(makeOption, $optionsPanel.find('#activity-choices'));
+  // })
   // remember, second param of `forEach` is a `this` binding
-  hotels.forEach(makeOption, $optionsPanel.find('#hotel-choices'));
-  restaurants.forEach(makeOption, $optionsPanel.find('#restaurant-choices'));
-  activities.forEach(makeOption, $optionsPanel.find('#activity-choices'));
+
 
   // make a single `option` tag & associate it with an attraction object
   function makeOption (databaseAttraction) {
@@ -39,4 +51,12 @@ $(function(){
     daysModule.addToCurrent(attraction);
   });
 
+  function getAjax(attraction){
+    return $.get('/api/' + attraction)
+    .then(function(dbAttraction){
+      console.log("ajaxed", dbAttraction);
+      return dbAttraction;
+    })
+    .catch(console.error.bind(console));
+  }
 });
